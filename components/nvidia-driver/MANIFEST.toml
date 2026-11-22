@@ -3,7 +3,7 @@
 
 [Settings]
 # Runs rootless, as the moonshine account, through that account's own
-# materia. The moonshine component's setup script creates the account.
+# materia. The host creates the account (host/scripts/moonshine-account.sh).
 User = "moonshine"
 
 [[Services]]
