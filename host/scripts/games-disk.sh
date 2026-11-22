@@ -27,6 +27,9 @@ lib=${3:-steam}
 # chowning and remounting someone else's data.
 [[ $name =~ ^[A-Za-z0-9_-]+$ ]] || die "name must be letters, digits, - or _: $name"
 [[ $lib != /* && /$lib/ != */../* ]] || die "library must be relative and stay on the disk: $lib"
+# seinfo exits 0 for a missing type, so the count is checked
+[ "$(seinfo -t moonshine_games_t | awk '/^Types:/{print $2}')" = 1 ] \
+    || die "moonshine_games_t isn't loaded: let forma install the moonshine-root component's SELinux modules first"
 
 dev=$(realpath -e "$device") || die "$device doesn't exist"
 [ -b "$dev" ] || die "$device isn't a block device"
@@ -74,11 +77,16 @@ else
 fi
 discard=$(lsblk -ndrbo DISC-MAX "$dev")
 
+# The label every file on the disk gets (moonshine.te): writable for the
+# Steam container, read-only for moonshine. Mounting with context= also
+# leaves the disk's own labels alone.
+context=system_u:object_r:moonshine_games_t:s0
+
 # noatime everywhere: loading a game reads thousands of files, and recording
 # each read is a write for nothing (and on btrfs, copy-on-write metadata).
 # Proton's prefixes need a POSIX filesystem (symlinks, ownership, case), so
 # FAT, exFAT and NTFS are refused.
-opts=noatime
+opts=noatime,context=$context
 case $fstype in
     btrfs)
         # Compression costs CPU on reads and saves disk time. A hard disk is
@@ -150,7 +158,12 @@ fi
 find "$base/$lib" \( ! -user moonshine -o ! -group moonshine \) -exec chown -h moonshine:moonshine {} +
 chmod 0750 "$base/$lib"
 
+# The mountpoint takes moonshine_games_t from moonshine.fc. On a re-run the
+# library is mounted over it, so it's unmounted first (mount_unit remounts it)
+# or restorecon would reach the library instead.
 mkdir -p "$where"
+! mountpoint -q "$where" || systemctl stop "$(systemd-escape --path --suffix=mount "$where")"
+restorecon -F /var/mnt/games "$where"
 # Requires the disk's unit: stopping or restarting it does the same to this
 mount_unit "$base/$lib" "$where" none bind "RequiresMountsFor=$base"
 

@@ -64,8 +64,11 @@ ARGS=(--rm --replace --name moonshine-steam)
 ! "$session" || ARGS+=(--pid=container:moonshine)
 # retro (1000) = the service user: moonshine's sockets are only usable by it
 ARGS+=("--userns=keep-id:uid=1000,gid=1000" --group-add=keep-groups)
-# pressure-vessel needs bwrap: no capabilities, but an unmasked /proc
-ARGS+=(--cap-drop=ALL --security-opt=no-new-privileges --security-opt=unmask=/proc/*)
+# pressure-vessel needs bwrap: no caps, but the SELinux type and unmasked
+# /proc (from corectl's design notes). gow_sandbox (components/moonshine-root/selinux/gow_sandbox.cil)
+# is the GPU container type plus bwrap's mounts.
+ARGS+=(--cap-drop=ALL --security-opt=no-new-privileges
+    --security-opt=label=type:gow_sandbox.process --security-opt=unmask=/proc/*)
 ARGS+=(--network=pasta)
 # steamwebhelper (Chromium) keeps its shared memory in /dev/shm; podman's 64m
 # default leaves it under Chromium's 64MB minimum
