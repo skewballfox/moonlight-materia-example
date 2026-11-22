@@ -32,12 +32,14 @@ Schedule = "daily"
 Triggers = ["git-ref"]
 
 # Steam. No Quadlet names this image: the launcher (/etc/moonshine/
-# launch-steam) runs it when moonshine starts a session.
+# launch-steam) runs it when moonshine starts a session. LoadFor names the
+# accounts that load it anyway. PROPOSED KEY: forma rejects it today.
 [[Forma.Images]]
 Tag = "moonshine/steam:latest"
 Containerfile = "build/steam.Dockerfile"
 # Takes moonshine's Vulkan WSI layer from the moonshine image
 DependsOn = ["moonshine/moonshine:patches"]
+LoadFor = ["moonshine"]
 
 [Forma.Images.Update]
 Schedule = "weekly"
