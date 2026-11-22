@@ -81,6 +81,10 @@ if "$session"; then
 else
     ARGS+=(-v moonshine-xvfb-vol:/tmp/.X11-unix -e DISPLAY=:99)
 fi
+# The games disks, each mounted at /var/mnt/games/<name> (podman binds
+# recursively). An unmounted disk shows as its empty, root-owned mountpoint:
+# Steam marks that library unavailable rather than installing into /var.
+ARGS+=(-v /var/mnt/games:/mnt/games)
 # Moonshine creates a client's pads when it connects, after Steam has started,
 # so the directory is bound rather than single nodes: new ones show up live.
 # Rootless podman has no device cgroup, so access is by file mode: of the
