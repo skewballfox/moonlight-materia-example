@@ -60,3 +60,17 @@ Context = "build/moonshine"
 
 [Forma.Images.Update]
 Schedule = "weekly"
+
+[Forma.SELinux]
+# moonshine.te: the bus proxy's domain and the games disks' type (built with
+# its .fc). The .cil types build on container-selinux's udica templates,
+# loaded in the same transaction.
+Modules = [
+  "selinux/moonshine.te",
+  "selinux/gpu_container.cil",
+  "selinux/moonshine_container.cil",
+  "selinux/gow_sandbox.cil",
+  "selinux/xvfb.cil",
+]
+Templates = ["base_container", "net_container"]
+Relabel = ["/etc/moonshine"]
