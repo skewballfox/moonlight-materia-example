@@ -15,15 +15,19 @@ RestartSec=5
 # The driver volume must match the loaded kernel module. An rpm-ostree driver
 # update lands at reboot; until the driver image is rebuilt for it,
 # fail here rather than with EGL/Vulkan errors mid-stream.
-ExecStartPre=/bin/sh -c 'want=$(cat /sys/module/nvidia/version); have=$(podman image inspect localhost/moonshine/nvidia-driver:latest --format "{{ "{{.Labels.nvidia_driver_version}}" }}"); [ "$have" = "$want" ] || { echo "nvidia-driver-vol is $have but the kernel module is $want: set nv_version for this host (attributes/) and restart nvidia-driver-build.service" >&2; exit 1; }'
+ExecStartPre=/bin/sh -c 'want=$(cat /sys/module/nvidia/version); have=$(podman image inspect localhost/moonshine/nvidia-driver:latest --format "{{ "{{.Labels.nvidia_driver_version}}" }}"); [ "$have" = "$want" ] || { echo "nvidia-driver-vol is $have but the kernel module is $want: set NV_VERSION for this host (MANIFEST.toml) and let forma rebuild the driver image" >&2; exit 1; }'
 
 [Container]
 Environment=MOONSHINE_LOG=warn,moonshine=info,moonshine_core=info
 ContainerName=%p
 HostName=%p
-# Built by the account from moonshine.build (localhost/moonshine/moonshine:patches).
-# Quadlet orders this container after moonshine-build.service.
-Image=moonshine.build
+# Built, signed and loaded by forma. Literal text: forma reads this key from
+# the unrendered file.
+Image=localhost/moonshine/moonshine:patches
+# A forma account never pulls; a missing image fails the start instead.
+Pull=never
+# podman auto-update restarts this container after forma loads a new image.
+AutoUpdate=local
 Network=host
 
 # Container `moonshine` (1000) = the host service account, so /etc/moonshine,
