@@ -1,0 +1,6 @@
+KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", GROUP="moonshine-input", MODE="0660"
+KERNEL=="uhid", GROUP="moonshine-input", MODE="0660"
+SUBSYSTEM=="input", DEVPATH=="/devices/virtual/input/*", ENV{ID_SEAT}="seat9"
+SUBSYSTEM=="input", KERNELS=="uhid", ENV{ID_SEAT}="seat9"
+SUBSYSTEM=="hidraw", KERNELS=="uhid", ENV{ID_SEAT}="seat9"
+SUBSYSTEM=="input", KERNEL=="event*|js*", ATTRS{name}=="Moonshine *", GROUP="moonshine-input"

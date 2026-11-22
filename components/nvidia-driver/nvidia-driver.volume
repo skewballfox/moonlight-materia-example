@@ -1,0 +1,17 @@
+# NVIDIA userspace for the moonshine and Steam containers, mounted at
+# /usr/nvidia. Backed directly by the driver image (Driver=image).
+#
+# A volume's Image= can name a .image unit but not a .build, so this names
+# the tag and orders itself after the build.
+#
+# The volume pins the image it was created from. After a rebuild, the new
+# driver is used only after `podman volume rm nvidia-driver-vol` as the
+# account.
+[Unit]
+Requires=nvidia-driver-build.service
+After=nvidia-driver-build.service
+
+[Volume]
+VolumeName=nvidia-driver-vol
+Driver=image
+Image=localhost/moonshine/nvidia-driver:latest

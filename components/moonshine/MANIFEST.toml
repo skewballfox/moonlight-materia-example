@@ -1,0 +1,18 @@
+# Moonshine, a Moonlight streaming server, with Steam as its one app.
+# Adapted from corectl's moonshine.
+
+[Settings]
+# Runs rootless, as the moonshine account, through that account's own
+# materia. The setup script creates the account, for this component and
+# for nvidia-driver.
+User = "moonshine"
+SetupScript = "moonshine-setup.sh"
+CleanupScript = "moonshine-cleanup.sh"
+
+[[Services]]
+Service = "moonshine.service"
+
+# No Quadlet names the Steam image, so nothing else starts its build
+[[Services]]
+Service = "steam-build.service"
+Oneshot = true

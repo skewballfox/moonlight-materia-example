@@ -1,0 +1,4 @@
+# Holds moonshine-bus-proxy's socket, mounted at /run/moonshine-bus in
+# moonshine.container.
+[Volume]
+VolumeName=moonshine-bus-vol
