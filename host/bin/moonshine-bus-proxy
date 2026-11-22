@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -I
 """Filtering D-Bus proxy between moonshine and the service user's session bus.
 
 Installed as /usr/local/libexec/moonshine-bus-proxy, run by

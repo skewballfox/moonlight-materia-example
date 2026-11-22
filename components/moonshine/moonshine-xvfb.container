@@ -20,6 +20,8 @@ Exec=:99 -screen 0 1920x1080x24 -nolisten tcp
 UserNS=keep-id:uid=1000,gid=1000
 DropCapability=ALL
 NoNewPrivileges=true
+# container_t's own files plus Steam's connect (selinux/xvfb.cil)
+SecurityLabelType=moonshine_xvfb.process
 Network=none
 Volume=moonshine-xvfb.volume:/tmp/.X11-unix
 
