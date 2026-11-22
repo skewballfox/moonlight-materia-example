@@ -16,6 +16,7 @@ component. The administrator installs them once.
 | `udev/85-moonshine.rules` | `/etc/udev/rules.d/85-moonshine.rules` | Gives `/dev/uinput`, `/dev/uhid` and moonshine's pads to `moonshine-input`, and moves every virtual input device off the desktop seat. |
 | `modules-load.d/moonshine.conf` | `/etc/modules-load.d/moonshine.conf` | Loads `uinput` and `uhid` at boot. |
 | `firewalld/moonshine.xml` | `/etc/firewalld/services/moonshine.xml` | Moonshine's ports. |
+| `scripts/moonshine-account.sh` | Run by hand, as root, or from a setup hook | Creates the moonshine account and starts its materia. |
 | `scripts/games-disk.sh`, `scripts/steam-library.sh` | Run by hand, as root | Mount a games disk at `/var/mnt/games/<name>` and add its library to Steam. |
 
 ## Setting up a host
@@ -42,10 +43,20 @@ Run these as root, from this directory. On secureblue, run `semodule` and
    images (secureblue does) needs an entry for that registry. The
    Containerfiles pin the image by digest either way.
 
-3. **The first update:** `materia update`. The moonshine component's setup
-   script creates the account, the `moonshine-input` group and the account's
-   materia. `moonshine.service` fails to start until the next two steps are
-   done.
+3. **The account.** No component creates it. Either run
+   `scripts/moonshine-account.sh` once, before the first update, or let
+   materia run it for each new component from a host-wide hook. Hooks are
+   a proposal; materia does not have them yet:
+
+   ```toml
+   # /etc/materia/config.toml
+   [executor.hooks]
+   setup = ["/usr/local/sbin/moonshine-account"]
+   ```
+
+   with the script installed as `/usr/local/sbin/moonshine-account`. Then
+   `materia update`. `moonshine.service` fails to start until the next two
+   steps are done.
 
 4. **SELinux.** The account runs as `unconfined_u`, Fedora's default for a
    new user, and the policy is written for that. The `.cil` types build on

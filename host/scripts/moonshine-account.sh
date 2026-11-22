@@ -1,9 +1,8 @@
 #!/bin/sh
-# SetupScript of the moonshine component. Materia runs it as root after it
-# has staged the component and before it asks the account's materia to
-# update. It creates the moonshine account, which moonshine and
-# nvidia-driver both run as, and starts the account's materia server.
-# Safe to run again.
+# Creates the moonshine account, which moonshine and nvidia-driver both run
+# as, and starts the account's materia server. Run as root, by hand before
+# the first materia update, or from a materia setup hook (host/README.md);
+# it ignores the component name a hook passes. Safe to run again.
 set -eu
 
 account=moonshine
@@ -18,9 +17,11 @@ if ! getent passwd "$account" > /dev/null; then
     usermod --add-subuids 524288-589823 --add-subgids 524288-589823 "$account"
 fi
 
-# Materia creates the staging directory root-only and never changes it.
-# The account reads it through its group.
-chgrp "$account" "$staging"
+# Materia creates the staging directory root-only and never changes it,
+# and leaves one that already exists alone. The account reads it through
+# its group.
+install -d -m 0755 /var/lib/materia/delegate /var/lib/materia/delegate/accounts
+install -d -o root -g "$account" -m 0750 "$staging"
 
 # The account's materia reads the staging directory. Its configuration
 # stays outside the account's home, so the account cannot change it. No
