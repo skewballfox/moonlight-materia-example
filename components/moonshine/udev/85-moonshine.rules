@@ -1,3 +1,6 @@
+# Installed by forma as /etc/udev/rules.d/85-moonshine.rules ([Forma.Udev] in
+# the component manifest). The account can read this copy, not change the
+# installed one.
 KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", GROUP="moonshine-input", MODE="0660"
 KERNEL=="uhid", GROUP="moonshine-input", MODE="0660"
 SUBSYSTEM=="input", DEVPATH=="/devices/virtual/input/*", ENV{ID_SEAT}="seat9"
