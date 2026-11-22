@@ -1,0 +1,85 @@
+policy_module(moonshine, 2.0.0)
+
+########################################
+#
+# moonshine-bus-proxy runs in its own domain so its socket carries a label
+# that the moonshine container can be allowed to connect to. Containers may
+# not connect to the account's own sockets (user_t), and allowing that would
+# reach every abstract socket the account has (moonshine shares the host
+# network namespace). The moonshine container's type grants the connect
+# (moonshine_container.cil).
+#
+# Adapted from corectl, where the account ran as unconfined_u and the unit
+# entered the domain with SELinuxContext=unconfined_u:unconfined_r:... . Forma
+# maps the account to user_u, which cannot switch SELinux user or role, so:
+#
+# - the domain is entered by a type transition from user_t on the program's
+#   own label (moonshine.fc), not by SELinuxContext=;
+# - it is associated with user_r;
+# - it is not an unconfined domain: an escaped process that runs the proxy
+#   would otherwise leave user_t's confinement.
+#
+# NOT YET RUN under user_u (architecture spike 0(i)). The rules below are the
+# expected minimum; finish them from the AVCs of a real start
+# (journalctl -g avc). In particular, check which domain the account's user
+# manager runs in (ps -eZ | grep 'systemd --user'): the rules assume user_t.
+
+gen_require(`
+	type user_t;
+	role user_r;
+	class dbus send_msg;
+	class filesystem associate;
+')
+
+type moonshine_bus_t;
+type moonshine_bus_exec_t;
+application_domain(moonshine_bus_t, moonshine_bus_exec_t)
+role user_r types moonshine_bus_t;
+
+# The user manager starts it (with NoNewPrivileges=)
+domain_auto_trans(user_t, moonshine_bus_exec_t, moonshine_bus_t)
+allow user_t moonshine_bus_t:process2 nnp_transition;
+allow user_t moonshine_bus_t:process { signal sigkill };
+
+# A Python program: the interpreter, its libraries and the program itself
+corecmd_exec_bin(moonshine_bus_t)
+files_read_usr_files(moonshine_bus_t)
+libs_use_ld_so(moonshine_bus_t)
+libs_use_shared_libs(moonshine_bus_t)
+miscfiles_read_localization(moonshine_bus_t)
+kernel_read_system_state(moonshine_bus_t)
+allow moonshine_bus_t moonshine_bus_exec_t:file { read open getattr map execute };
+
+# sd_notify (Type=notify) to the user manager
+init_dgram_send(moonshine_bus_t)
+allow moonshine_bus_t user_t:unix_dgram_socket sendto;
+
+# The account's session bus, %t/bus, and the user manager behind it
+userdom_manage_user_tmp_sockets(moonshine_bus_t)
+userdom_manage_user_tmp_dirs(moonshine_bus_t)
+allow moonshine_bus_t user_t:unix_stream_socket connectto;
+allow moonshine_bus_t user_t:dbus send_msg;
+allow user_t moonshine_bus_t:dbus send_msg;
+
+# Its listening socket in the moonshine-bus-vol volume (container_file_t)
+container_manage_files(moonshine_bus_t)
+allow moonshine_bus_t container_file_t:sock_file { create unlink getattr setattr write };
+allow moonshine_bus_t self:unix_stream_socket { create_stream_socket_perms connectto };
+
+########################################
+#
+# Game libraries: /var/mnt/games (moonshine.fc) and every disk mounted under
+# it with context=system_u:object_r:moonshine_games_t:s0. The Steam container
+# may write them (gow_sandbox.cil), moonshine's may only read them
+# (moonshine_container.cil). Both bind /var/mnt/games, and podman's :ro covers
+# only the bind itself, not the disks mounted under it, so this type is what
+# keeps moonshine read-only there. container_file_t would not: every
+# container type may write it.
+#
+# The attributes container_file_t has for the same use: a file type that is
+# also a filesystem's label (context=) and a mountpoint.
+
+type moonshine_games_t;
+files_mountpoint(moonshine_games_t)
+fs_noxattr_type(moonshine_games_t)
+allow moonshine_games_t self:filesystem associate;
