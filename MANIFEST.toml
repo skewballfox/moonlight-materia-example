@@ -1,7 +1,7 @@
 # Repository manifest
 
 [Roles.streaming]
-Components = ["nvidia-driver", "moonshine"]
+Components = ["moonshine-root", "nvidia-driver", "moonshine"]
 
 [Hosts.streambox]
 Roles = ["streaming"]
