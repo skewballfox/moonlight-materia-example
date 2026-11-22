@@ -3,9 +3,22 @@
 
 [Settings]
 # Runs rootless, as the moonshine account, through that account's own
-# materia. The moonshine component's setup script creates the account.
+# materia. The scripts call forma, which creates the account.
 User = "moonshine"
+SetupScript = "nvidia-driver-setup.sh"
+PostScript = "nvidia-driver-setup.sh"
+CleanupScript = "nvidia-driver-cleanup.sh"
 
 [[Services]]
 Service = "nvidia-driver-volume.service"
 Oneshot = true
+
+[[Forma.Images]]
+Tag = "moonshine/nvidia-driver:latest"
+Containerfile = "build/nvidia-driver.Dockerfile"
+Context = "build"
+# NV_VERSION comes from the host: see the repository manifest.
+
+[Forma.Images.Update]
+# Picks up Fedora package updates in the installer stage
+Schedule = "weekly"
