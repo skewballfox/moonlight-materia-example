@@ -1,12 +1,58 @@
-# The root half of the moonshine account's components, as floated in the
-# materia PR 63 discussion: one component per materia instance. It has no
-# User, so root materia runs it. It holds the scripts that set up the
-# account; moonshine and nvidia-driver hold only what the account runs.
+# The root half of the moonshine account's components: one component per
+# materia instance. It has no User, so root materia runs it. It holds the
+# scripts that call forma, every [Forma] table of the account's components,
+# and their Containerfiles; moonshine and nvidia-driver hold only what the
+# account runs.
 #
-# Materia would run this component before the account's components
-# ("component ordering"); it has no such setting yet. On the delegation
-# branch the order already holds, because root materia runs every
-# component's scripts before it asks an account to update.
+# Materia would run this component before the account's components; it has
+# no setting for that yet. On the delegation branch the order already holds,
+# because root materia runs every component's scripts before it asks an
+# account to update.
 [Settings]
 SetupScript = "moonshine-root-setup.sh"
+PostScript = "moonshine-root-setup.sh"
 CleanupScript = "moonshine-root-cleanup.sh"
+
+[[Forma.Images]]
+Tag = "moonshine/nvidia-driver:latest"
+Containerfile = "build/nvidia-driver/nvidia-driver.Dockerfile"
+# NV_VERSION comes from the host: see the repository manifest.
+
+[Forma.Images.Update]
+Schedule = "weekly"
+
+# Images, built by forma's builder, signed by its signer, loaded by the
+# account. Each image a Quadlet names (Image=) must be built here.
+
+[[Forma.Images]]
+Tag = "moonshine/moonshine:patches"
+Containerfile = "build/moonshine/moonshine.Dockerfile"
+BuildArgs = { MOONSHINE_REPO = "https://github.com/skewballfox/moonshine.git", MOONSHINE_REF = "patches" }
+
+[Forma.Images.Source]
+Git = "https://github.com/skewballfox/moonshine.git"
+Ref = "patches"
+# The build argument that receives the commit forma resolved
+CommitArg = "MOONSHINE_COMMIT"
+
+[Forma.Images.Update]
+Schedule = "daily"
+Triggers = ["git-ref"]
+
+# Steam. No Quadlet names this image: the launcher (/etc/moonshine/
+# launch-steam) runs it when moonshine starts a session.
+[[Forma.Images]]
+Tag = "moonshine/steam:latest"
+Containerfile = "build/moonshine/steam.Dockerfile"
+# Takes moonshine's Vulkan WSI layer from the moonshine image
+DependsOn = ["moonshine/moonshine:patches"]
+
+[Forma.Images.Update]
+Schedule = "weekly"
+
+[[Forma.Images]]
+Tag = "moonshine/xvfb:latest"
+Containerfile = "build/moonshine/xvfb.Dockerfile"
+
+[Forma.Images.Update]
+Schedule = "weekly"
