@@ -7,6 +7,7 @@
 ;
 ; Use: label=type:gow_sandbox.process
 (block gow_sandbox
+	; user_r: inherited from gpu_container.
 	(blockinherit gpu_container)
 
 	; A new procfs and devpts per sandbox, and read-only remounts (T2, T6)
@@ -42,7 +43,7 @@
 	(allow process moonshine_games_t (lnk_file (getattr read write append create unlink rename
 		link setattr lock ioctl watch watch_reads)))
 
-	; moonshine's virtual pads in the bound /dev/input (launch-steam): read for
+	; moonshine's virtual pads in the bound /dev/input (host/etc-moonshine/launch-steam): read for
 	; input, write and ioctl for rumble. All of the host's input nodes have
 	; this type, so file mode decides: only the pads are moonshine-input.
 	(allow process event_device_t (chr_file (getattr open read write ioctl)))

@@ -15,15 +15,19 @@ RestartSec=5
 # The driver volume must match the loaded kernel module. An rpm-ostree driver
 # update lands at reboot; until the driver image is rebuilt for it,
 # fail here rather than with EGL/Vulkan errors mid-stream.
-ExecStartPre=/bin/sh -c 'want=$(cat /sys/module/nvidia/version); have=$(podman image inspect localhost/moonshine/nvidia-driver:latest --format "{{ "{{.Labels.nvidia_driver_version}}" }}"); [ "$have" = "$want" ] || { echo "nvidia-driver-vol is $have but the kernel module is $want: set nv_version for this host (attributes/) and restart nvidia-driver-build.service" >&2; exit 1; }'
+ExecStartPre=/bin/sh -c 'want=$(cat /sys/module/nvidia/version); have=$(podman image inspect localhost/moonshine/nvidia-driver:latest --format "{{ "{{.Labels.nvidia_driver_version}}" }}"); [ "$have" = "$want" ] || { echo "nvidia-driver-vol is $have but the kernel module is $want: set NV_VERSION for this host (MANIFEST.toml) and let forma rebuild the driver image" >&2; exit 1; }'
 
 [Container]
 Environment=MOONSHINE_LOG=warn,moonshine=info,moonshine_core=info
 ContainerName=%p
 HostName=%p
-# Built by the account from moonshine.build (localhost/moonshine/moonshine:patches).
-# Quadlet orders this container after moonshine-build.service.
-Image=moonshine.build
+# Built, signed and loaded by forma. Literal text: forma reads this key from
+# the unrendered file.
+Image=localhost/moonshine/moonshine:patches
+# A forma account never pulls; a missing image fails the start instead.
+Pull=never
+# podman auto-update restarts this container after forma loads a new image.
+AutoUpdate=local
 Network=host
 
 # Container `moonshine` (1000) = the host service account, so /etc/moonshine,
@@ -35,7 +39,7 @@ GroupAdd=keep-groups
 DropCapability=ALL
 NoNewPrivileges=true
 # container_t plus the GPU nodes and the bus proxy's socket
-# (host/selinux/moonshine_container.cil)
+# (moonshine-root/selinux/moonshine_container.cil)
 SecurityLabelType=moonshine_container.process
 
 AddDevice=/dev/dri
@@ -55,7 +59,8 @@ Volume=nvidia-driver-vol:/usr/nvidia:ro
 # (the bus proxy only lets moonshine start that path). Root owns these files,
 # not the account: see host/README.md. TLS key/cert and paired clients go in
 # state/, which the account owns.
-# No :z: rootless podman can't relabel root's files, host/selinux/moonshine.fc labels them.
+# No :z: rootless podman can't relabel root's files, moonshine-root/selinux/moonshine.fc labels
+# them.
 Volume=/etc/moonshine:/etc/moonshine:ro
 Volume=/etc/moonshine/state:/etc/moonshine/state
 # Shared with the app container at the same paths: Wayland + PulseAudio
@@ -67,7 +72,7 @@ Volume=moonshine-x11.volume:/tmp/.X11-unix
 Volume=moonshine-steam-home.volume:/home/retro:ro
 # The scanner follows Steam's libraryfolders.vdf to the games disks' libraries.
 # :ro covers only this bind, not the disks mounted under it: moonshine_games_t
-# is what keeps them read-only here (host/selinux/moonshine.te). Disks mounted after
+# is what keeps them read-only here (moonshine-root/selinux/moonshine.te). Disks mounted after
 # moonshine starts show up on its next start.
 Volume=/var/mnt/games:/mnt/games:ro
 

@@ -3,7 +3,7 @@
 
 [Settings]
 # Runs rootless, as the moonshine account, through that account's own
-# materia. moonshine-root creates the account.
+# materia. moonshine-root calls forma, which creates the account.
 User = "moonshine"
 
 [[Services]]

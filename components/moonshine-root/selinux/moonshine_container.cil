@@ -1,14 +1,15 @@
-; Moonshine's own container: gpu_container (apps/gpu_container.cil) plus the bus
+; Moonshine's own container: gpu_container (gpu_container.cil) plus the bus
 ; proxy's socket, the one peer outside the container it may connect to
 ; (moonshine.te). No other container type may reach the proxy.
 ;
 ; Use: SecurityLabelType=moonshine_container.process
 (block moonshine_container
+	; user_r: inherited from gpu_container.
 	(blockinherit gpu_container)
 
 	(allow process moonshine_bus_t (unix_stream_socket (connectto)))
 
-	; The app container (moonshine-launch-steam.sh) connects to moonshine's
+	; The app container (host/etc-moonshine/launch-steam) connects to moonshine's
 	; Wayland, Xwayland and PulseAudio sockets in the shared volumes. Only
 	; connectto: no file, dir or process access to moonshine.
 	(allow gow_sandbox.process process (unix_stream_socket (connectto)))

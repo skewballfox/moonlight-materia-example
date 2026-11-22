@@ -29,7 +29,7 @@ lib=${3:-steam}
 [[ $lib != /* && /$lib/ != */../* ]] || die "library must be relative and stay on the disk: $lib"
 # seinfo exits 0 for a missing type, so the count is checked
 [ "$(seinfo -t moonshine_games_t | awk '/^Types:/{print $2}')" = 1 ] \
-    || die "moonshine_games_t isn't loaded: install the modules in host/selinux first (host/README.md)"
+    || die "moonshine_games_t isn't loaded: let forma install the moonshine-root component's SELinux modules first"
 
 dev=$(realpath -e "$device") || die "$device doesn't exist"
 [ -b "$dev" ] || die "$device isn't a block device"

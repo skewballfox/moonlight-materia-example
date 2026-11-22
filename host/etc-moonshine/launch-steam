@@ -65,7 +65,7 @@ ARGS=(--rm --replace --name moonshine-steam)
 # retro (1000) = the service user: moonshine's sockets are only usable by it
 ARGS+=("--userns=keep-id:uid=1000,gid=1000" --group-add=keep-groups)
 # pressure-vessel needs bwrap: no caps, but the SELinux type and unmasked
-# /proc (from corectl's design notes). gow_sandbox (host/selinux/gow_sandbox.cil)
+# /proc (from corectl's design notes). gow_sandbox (components/moonshine-root/selinux/gow_sandbox.cil)
 # is the GPU container type plus bwrap's mounts.
 ARGS+=(--cap-drop=ALL --security-opt=no-new-privileges
     --security-opt=label=type:gow_sandbox.process --security-opt=unmask=/proc/*)
