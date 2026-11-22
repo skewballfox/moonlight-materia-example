@@ -42,8 +42,8 @@ Run these as root, from this directory. On secureblue, run `semodule` and
    images (secureblue does) needs an entry for that registry. The
    Containerfiles pin the image by digest either way.
 
-3. **The first update:** `materia update`. The moonshine component's setup
-   script creates the account, the `moonshine-input` group and the account's
+3. **The first update:** `materia update`. The moonshine-root component's
+   setup script creates the account, the `moonshine-input` group and the account's
    materia. `moonshine.service` fails to start until the next two steps are
    done.
 

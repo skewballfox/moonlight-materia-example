@@ -12,13 +12,14 @@ MANIFEST.toml                    the host streambox and its role, streaming
 attributes/streambox.toml        per-host values: driver version, moonshine
                                  commit, render node
 components/
+  moonshine-root/                runs as root: sets up the moonshine account
+    moonshine-root-setup.sh
+    moonshine-root-cleanup.sh
   nvidia-driver/                 NVIDIA userspace as an image volume
     nvidia-driver.build.gotmpl
     nvidia-driver.volume
     build/nvidia-driver.Dockerfile
   moonshine/                     moonshine, Xvfb, the bus proxy, Steam's image
-    moonshine-setup.sh           creates the moonshine account
-    moonshine-cleanup.sh
     moonshine.container.gotmpl
     moonshine-xvfb.container
     moonshine-*.volume
@@ -30,12 +31,14 @@ host/                            files root installs once, outside materia
 
 ## How it runs
 
-Both components set `[Settings] User = "moonshine"`, so they run as that
-account (materia's "Delegated Components").
+`moonshine` and `nvidia-driver` set `[Settings] User = "moonshine"`, so they
+run as that account (materia's "Delegated Components"). `moonshine-root`
+sets none: root materia runs it, and it holds the scripts that set up the
+account.
 
 1. Root materia syncs this repository, resolves the attributes, and stages
    both components for the account.
-2. It runs `moonshine-setup.sh` as root. The script creates the account and
+2. It runs `moonshine-root-setup.sh` as root. The script creates the account and
    the `moonshine-input` group, and starts the account's materia server.
 3. Root materia asks the account's materia to update. That materia renders
    the templates, installs the Quadlets and units in the account's home,
