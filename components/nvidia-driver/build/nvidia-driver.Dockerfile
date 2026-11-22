@@ -2,7 +2,7 @@ ARG FEDORA_VERSION=44
 # Same base as components/moonshine/build/moonshine.Dockerfile (bump the two
 # together), so the installer
 # sees the glvnd/Vulkan loader layout the moonshine image runs with.
-# NV_VERSION has no default: the nv_version attribute sets it per host.
+# NV_VERSION has no default: the repository manifest sets it per host.
 ARG FEDORA_DIGEST=sha256:6f263feab9835fa01d3f8a944827da527aadbf1fee5ead10ad9b892b60d14608
 ARG BASE_IMAGE=registry.fedoraproject.org/fedora-minimal:${FEDORA_VERSION}@${FEDORA_DIGEST}
 

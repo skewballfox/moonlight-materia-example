@@ -5,3 +5,45 @@ Components = ["nvidia-driver", "moonshine"]
 
 [Hosts.streambox]
 Roles = ["streaming"]
+
+# The driver image must match the host's NVIDIA kernel module
+# (cat /sys/module/nvidia/version). An extension: it adds this build
+# argument to the component's image and leaves the rest alone.
+[[Hosts.streambox.Extensions.nvidia-driver.Forma.Images]]
+Tag = "moonshine/nvidia-driver:latest"
+BuildArgs = { NV_VERSION = "580.105.08" }
+
+# Forma's settings for every host
+[Forma]
+# tpm where the host has one, otherwise a software key
+Signing = "auto"
+
+[Forma.Builder]
+Account = "forma-build"
+SubIds = 65536
+
+[Forma.Signer]
+Account = "forma-sign"
+
+[Forma.Store]
+Root = "/var/lib/forma/store"
+
+[Forma.BaseImages]
+# listed: a base image that matches a Trust scope must satisfy it. Fedora
+# does not sign its base images, so there is no Trust entry; the
+# Containerfiles pin registry.fedoraproject.org/fedora-minimal by digest.
+Require = "listed"
+
+# The account both components run as. Forma creates it on a host where an
+# installed component sets [Settings] User to it.
+[Forma.Accounts.moonshine]
+Home = true
+Linger = true
+SubIds = 65536
+# render: the GPU's render node (forma only adds the membership).
+# moonshine-input: /dev/uinput, /dev/uhid and moonshine's pads
+# (host/udev/85-moonshine.rules); forma creates it.
+MemberOf = ["render", "moonshine-input"]
+
+[Forma.Groups.moonshine-input]
+System = true
