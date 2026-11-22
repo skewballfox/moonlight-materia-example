@@ -3,13 +3,8 @@
 
 [Settings]
 # Runs rootless, as the moonshine account, through that account's own
-# materia. moonshine-root creates the account.
+# materia. moonshine-root calls forma, which creates the account.
 User = "moonshine"
 
 [[Services]]
 Service = "moonshine.service"
-
-# No Quadlet names the Steam image, so nothing else starts its build
-[[Services]]
-Service = "steam-build.service"
-Oneshot = true
