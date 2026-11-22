@@ -1,11 +1,6 @@
 # NVIDIA userspace as an image volume (nvidia-driver.volume), for the
 # moonshine and Steam containers. Adapted from corectl's Wolf stack.
 
-[Settings]
-# Runs rootless, as the moonshine account, through that account's own
-# materia. The moonshine component's setup script creates the account.
-User = "moonshine"
-
 [[Services]]
 Service = "nvidia-driver-volume.service"
 Oneshot = true
