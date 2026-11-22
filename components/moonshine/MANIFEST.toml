@@ -3,11 +3,9 @@
 
 [Settings]
 # Runs rootless, as the moonshine account, through that account's own
-# materia. The setup script creates the account, for this component and
-# for nvidia-driver.
+# materia. The host creates the account, for this component and for
+# nvidia-driver (host/scripts/moonshine-account.sh).
 User = "moonshine"
-SetupScript = "moonshine-setup.sh"
-CleanupScript = "moonshine-cleanup.sh"
 
 [[Services]]
 Service = "moonshine.service"
