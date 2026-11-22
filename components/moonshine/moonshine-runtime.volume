@@ -1,0 +1,7 @@
+# Moonshine's XDG_RUNTIME_DIR (Wayland socket, moonshine/pulse/native),
+# mounted at /run/moonshine in moonshine.container and in the app container.
+# Created here, not on first use: podman chowns the top dir of a volume that
+# a keep-id container creates to that container's root (a subuid), and the
+# account is then locked out of it.
+[Volume]
+VolumeName=moonshine-runtime-vol

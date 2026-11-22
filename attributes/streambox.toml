@@ -1,0 +1,13 @@
+# Attributes for the host streambox, read with materia's file engine. Nothing
+# here is secret; use the age or sops engine for anything that is.
+
+[components.nvidia-driver]
+# The loaded NVIDIA kernel module: cat /sys/module/nvidia/version
+nv_version = "580.105.08"
+
+[components.moonshine]
+# The commit of skewballfox/moonshine's `patches` branch to build:
+# git ls-remote https://github.com/skewballfox/moonshine.git patches
+moonshine_commit = "0000000000000000000000000000000000000000"
+# The NVIDIA card's render node: ls -l /sys/class/drm/renderD*/device/driver
+render_node = "/dev/dri/renderD128"

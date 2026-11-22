@@ -1,0 +1,8 @@
+# NVIDIA userspace for this host's driver version, built by the account
+[Build]
+ImageTag=localhost/moonshine/nvidia-driver:latest
+File={{ m_dataDir "nvidia-driver" }}/build/nvidia-driver.Dockerfile
+SetWorkingDirectory={{ m_dataDir "nvidia-driver" }}/build
+# Must match the loaded kernel module: cat /sys/module/nvidia/version
+BuildArg=NV_VERSION={{ .nv_version }}
+Pull=missing

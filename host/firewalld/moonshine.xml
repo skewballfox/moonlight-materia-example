@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Installed as /etc/firewalld/services/moonshine.xml (host/README.md). -->
+<service>
+  <short>moonshine</short>
+  <description>Moonshine game streaming server (Moonlight)</description>
+  <port protocol="tcp" port="47984"/>
+  <port protocol="tcp" port="47989"/>
+  <port protocol="tcp" port="48010"/>
+  <port protocol="udp" port="47998"/>
+  <port protocol="udp" port="47999"/>
+  <port protocol="udp" port="48000"/>
+</service>
