@@ -3,8 +3,8 @@ ARG FEDORA_VERSION=44
 # together with FEDORA_VERSION (skopeo inspect --raw docker://... | sha256sum)
 ARG FEDORA_DIGEST=sha256:6f263feab9835fa01d3f8a944827da527aadbf1fee5ead10ad9b892b60d14608
 ARG BASE_IMAGE=registry.fedoraproject.org/fedora-minimal:${FEDORA_VERSION}@${FEDORA_DIGEST}
-# The moonshine image, for its WSI Vulkan layer. steam.build orders this
-# build after moonshine.build.
+# The moonshine image, for its WSI Vulkan layer. DependsOn in the component
+# manifest builds it first and rebuilds this one after it.
 ARG MOONSHINE_IMAGE=localhost/moonshine/moonshine:patches
 
 FROM $MOONSHINE_IMAGE AS moonshine
