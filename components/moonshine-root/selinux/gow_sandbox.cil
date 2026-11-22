@@ -1,0 +1,50 @@
+; App profile `sandboxed` (gos-plan.md 7.5, 9.9): gpu_container plus the mounts
+; bwrap and pressure-vessel make in their own namespaces, so Steam runs with no
+; capabilities. Replaces container_engine_t, which may mount any filesystem type.
+; The container also needs --security-opt unmask=/proc/* (T4, T5).
+;
+; Not yet run: finish it from the AVCs of a real launch (journalctl -g avc).
+;
+; Use: label=type:gow_sandbox.process
+(block gow_sandbox
+	; user_r: inherited from gpu_container.
+	(blockinherit gpu_container)
+
+	; A new procfs and devpts per sandbox, and read-only remounts (T2, T6)
+	(allow process proc_t (filesystem (mount remount unmount)))
+	(allow process devpts_t (filesystem (mount remount unmount)))
+	(allow process tmpfs_t (filesystem (remount)))
+	; bwrap's --dev-bind of the GPU nodes (on the host's devtmpfs) then a
+	; per-mount flags remount. Remounting devtmpfs itself still needs
+	; CAP_SYS_ADMIN in the init user namespace.
+	(allow process device_t (filesystem (remount)))
+	; bwrap's last step detaches the old root (the container's overlay,
+	; container_file_t) in its own mount namespace. Denied silently: the
+	; container policy has dontaudit svirt_sandbox_domain mountpoint unmount.
+	(allow process container_file_t (filesystem (unmount)))
+
+	; bwrap's new root and /dev are fresh tmpfs mounts it builds and binds into
+	(allow process tmpfs_t (dir (getattr open read search write add_name remove_name create mounton)))
+
+	; The new devpts: its ptmx and ptys
+	(allow process devpts_t (dir (getattr open read search)))
+	(allow process devpts_t (chr_file (getattr open read write ioctl)))
+	(allow process ptmx_t (chr_file (getattr open read write ioctl)))
+
+	; The game libraries (moonshine.te's moonshine_games_t): what
+	; container_file_t gets, less relabeling and entrypoint. Steam installs and
+	; updates games there, Proton keeps its prefixes there, games run from
+	; there; bwrap binds them into its new root (mounton) and remounts them.
+	(allow process moonshine_games_t (filesystem (getattr remount)))
+	(allow process moonshine_games_t (dir (getattr open read search write add_name remove_name
+		create rmdir rename reparent link setattr lock ioctl watch watch_reads mounton)))
+	(allow process moonshine_games_t (file (getattr open read write append create unlink rename
+		link setattr lock ioctl map execute execute_no_trans execmod watch watch_reads)))
+	(allow process moonshine_games_t (lnk_file (getattr read write append create unlink rename
+		link setattr lock ioctl watch watch_reads)))
+
+	; moonshine's virtual pads in the bound /dev/input (host/etc-moonshine/launch-steam): read for
+	; input, write and ioctl for rumble. All of the host's input nodes have
+	; this type, so file mode decides: only the pads are moonshine-input.
+	(allow process event_device_t (chr_file (getattr open read write ioctl)))
+)

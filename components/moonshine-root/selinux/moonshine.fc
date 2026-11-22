@@ -1,0 +1,12 @@
+# Moonshine config, launcher and state, mounted into the moonshine container.
+# Labeled here: rootless podman cannot relabel (:z) the root-owned files.
+# Installed from host/etc-moonshine (see host/README.md).
+/etc/moonshine(/.*)?	gen_context(system_u:object_r:container_file_t,s0)
+# The bus proxy program (host/bin/moonshine-bus-proxy). Its label is the entry
+# point of moonshine_bus_t (moonshine.te).
+/usr/local/libexec/moonshine-bus-proxy	--	gen_context(system_u:object_r:moonshine_bus_exec_t,s0)
+# Where the games disks are mounted, and their mountpoints (moonshine.te).
+# The disks' own files take the type from their context= mount option.
+# Written as /mnt: file_contexts.subs_dist maps /var/mnt to /mnt before
+# matching, so a /var/mnt rule never matches.
+/mnt/games(/.*)?	gen_context(system_u:object_r:moonshine_games_t,s0)

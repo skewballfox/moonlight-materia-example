@@ -1,0 +1,24 @@
+; Xvfb's container (moonshine-xvfb.container): container_t's files,
+; no network, no devices. Its own type only so the Steam container can be
+; allowed to connect to its X socket: allowing that for container_t would
+; reach every container's sockets.
+;
+; Use: SecurityLabelType=moonshine_xvfb.process
+(block moonshine_xvfb
+	; The account runs as user_u (forma maps it), so its containers run under
+	; user_r. The udica templates associate a type with system_r only.
+	; Not yet run under user_u: architecture spike 0(i).
+	(roletype user_r process)
+
+	(blockinherit container)
+
+	(typetransition process tmpfs_t dir container_file_t)
+	(typetransition process tmpfs_t file container_file_t)
+	(typetransition process tmpfs_t lnk_file container_file_t)
+
+	(allow systemd_coredump_t process (process (signull)))
+
+	; Steam between streams (host/etc-moonshine/launch-steam). Only connectto: no
+	; file, dir or process access to Xvfb.
+	(allow gow_sandbox.process process (unix_stream_socket (connectto)))
+)

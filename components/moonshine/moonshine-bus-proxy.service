@@ -1,7 +1,8 @@
-# A plain user unit: materia installs it in ~/.config/systemd/user. The moonshine
-# container's only D-Bus: filters its calls to systemd --user, see
-# host/bin/moonshine-bus-proxy. The socket goes in moonshine-bus-vol, which
-# moonshine.container mounts at /run/moonshine-bus.
+# A plain user unit, not a Quadlet: it lands in the account's user-unit
+# directory next to the Quadlets. The moonshine container's only D-Bus: it
+# filters calls to the account's user manager (host/bin/moonshine-bus-proxy).
+# The socket goes in moonshine-bus-vol, which moonshine.container mounts at
+# /run/moonshine-bus.
 [Unit]
 Description=Filtering D-Bus proxy for moonshine
 Requires=moonshine-bus-volume.service
@@ -9,8 +10,15 @@ After=moonshine-bus-volume.service
 
 [Service]
 Type=notify
-ExecStart=/usr/bin/python3 -I /usr/local/libexec/moonshine-bus-proxy \
+# Run directly, not through python3: its own file label is the entry point of
+# its SELinux domain (moonshine-root/selinux/moonshine.te), and the interpreter's label would
+# move every Python program the account runs into that domain. Python's
+# isolated mode (-I) comes from the program's shebang line, so PYTHONPATH and
+# PYTHONSTARTUP from the account's user manager environment are ignored.
+ExecStart=/usr/local/libexec/moonshine-bus-proxy \
     %h/.local/share/containers/storage/volumes/moonshine-bus-vol/_data/bus %t/bus
+# No SELinuxContext=: the account runs as user_u, which cannot switch SELinux
+# user or role. The domain comes from a type transition on the program's label.
 NoNewPrivileges=yes
 Restart=on-failure
 RestartSec=2
