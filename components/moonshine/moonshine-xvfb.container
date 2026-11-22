@@ -7,8 +7,10 @@ RestartSec=5
 
 [Container]
 ContainerName=%p
-# Built by the account from xvfb.build (localhost/moonshine/xvfb:latest)
-Image=xvfb.build
+# Built, signed and loaded by forma
+Image=localhost/moonshine/xvfb:latest
+Pull=never
+AutoUpdate=local
 # Display :99, apart from Xwayland's in moonshine-x11-vol. No TCP; the
 # abstract socket doesn't leave this network namespace (Network=none), so
 # Steam connects through the filesystem one in the volume.
@@ -18,7 +20,7 @@ Exec=:99 -screen 0 1920x1080x24 -nolisten tcp
 UserNS=keep-id:uid=1000,gid=1000
 DropCapability=ALL
 NoNewPrivileges=true
-# container_t's own files plus Steam's connect (host/selinux/xvfb.cil)
+# container_t's own files plus Steam's connect (selinux/xvfb.cil)
 SecurityLabelType=moonshine_xvfb.process
 Network=none
 Volume=moonshine-xvfb.volume:/tmp/.X11-unix
