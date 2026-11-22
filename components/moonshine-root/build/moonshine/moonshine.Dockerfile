@@ -3,8 +3,8 @@ ARG FEDORA_VERSION=44
 # together with FEDORA_VERSION (skopeo inspect --raw docker://... | sha256sum)
 ARG FEDORA_DIGEST=sha256:6f263feab9835fa01d3f8a944827da527aadbf1fee5ead10ad9b892b60d14608
 ARG BASE_IMAGE=registry.fedoraproject.org/fedora-minimal:${FEDORA_VERSION}@${FEDORA_DIGEST}
-# Built from the fork's `patches` branch. moonshine.build passes the commit
-# to build as MOONSHINE_COMMIT, from the moonshine_commit attribute.
+# Built from the fork's `patches` branch. Forma passes the commit it resolved
+# from that branch as MOONSHINE_COMMIT ([Forma.Images.Source]).
 ARG MOONSHINE_REPO=https://github.com/skewballfox/moonshine.git
 ARG MOONSHINE_REF=patches
 # Moonshine (https://github.com/hgaiser/moonshine): Moonlight server with its
@@ -26,7 +26,7 @@ RUN dnf -y install --setopt=install_weak_deps=False \
 
 ARG MOONSHINE_REPO
 ARG MOONSHINE_REF
-# The commit MOONSHINE_REF should point at (attributes/streambox.toml): a
+# The commit MOONSHINE_REF pointed at when forma resolved it: a
 # changed value reruns the clone, and the check fails if the ref moved since
 ARG MOONSHINE_COMMIT
 RUN test -n "$MOONSHINE_COMMIT" \
