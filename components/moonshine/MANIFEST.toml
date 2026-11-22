@@ -48,3 +48,16 @@ Containerfile = "build/xvfb.Dockerfile"
 
 [Forma.Images.Update]
 Schedule = "weekly"
+
+# PROPOSED KEYS, not in forma's extension yet: forma rejects them today. The
+# forma-user library can already write both kinds of file.
+#
+# /dev/uinput, /dev/uhid and moonshine's pads to moonshine-input, and every
+# virtual input device off the desktop seat. Forma installs each file under
+# /etc/udev/rules.d/ and removes it with the component.
+[Forma.Udev]
+Rules = ["udev/85-moonshine.rules"]
+
+# Loaded at boot through /etc/modules-load.d/, and now
+[Forma.KernelModules]
+Load = ["uinput", "uhid"]
