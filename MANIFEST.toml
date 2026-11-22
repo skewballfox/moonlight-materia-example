@@ -26,5 +26,8 @@ Require = "listed"
 # moonshine-input: /dev/uinput, /dev/uhid and moonshine's pads
 # (host/udev/85-moonshine.rules); forma creates it.
 MemberOf = ["render", "moonshine-input"]
+# Images the account may run that no Quadlet names: here, the one moonshine's
+# Steam launcher starts. PROPOSED KEY: forma rejects it today.
+Images = ["moonshine/steam:latest"]
 
 [Forma.Groups.moonshine-input]
