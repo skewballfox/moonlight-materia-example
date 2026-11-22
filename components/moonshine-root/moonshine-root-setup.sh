@@ -1,7 +1,7 @@
 #!/bin/sh
-# SetupScript of the moonshine component. Materia runs it as root after it
-# has staged the component and before it asks the account's materia to
-# update. It creates the moonshine account, which moonshine and
+# SetupScript of the moonshine-root component. Root materia runs it as root,
+# with every other component's scripts, before it asks the account's
+# materia to update. It creates the moonshine account, which moonshine and
 # nvidia-driver both run as, and starts the account's materia server.
 # Safe to run again.
 set -eu

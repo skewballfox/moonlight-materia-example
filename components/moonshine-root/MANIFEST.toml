@@ -1,0 +1,12 @@
+# The root half of the moonshine account's components, as floated in the
+# materia PR 63 discussion: one component per materia instance. It has no
+# User, so root materia runs it. It holds the scripts that set up the
+# account; moonshine and nvidia-driver hold only what the account runs.
+#
+# Materia would run this component before the account's components
+# ("component ordering"); it has no such setting yet. On the delegation
+# branch the order already holds, because root materia runs every
+# component's scripts before it asks an account to update.
+[Settings]
+SetupScript = "moonshine-root-setup.sh"
+CleanupScript = "moonshine-root-cleanup.sh"
